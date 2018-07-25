@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ImageTextEditor</string>
+
+    <string name="edit_text_hint">Type SomeThing…\nOr Upload Images</string>
+</resources>
