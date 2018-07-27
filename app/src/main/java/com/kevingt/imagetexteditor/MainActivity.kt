@@ -41,11 +41,13 @@ class MainActivity : AppCompatActivity() {
             spans.forEach {
                 val st = et_main.text.getSpanStart(it)
                 val en = et_main.text.getSpanEnd(it)
-                //TODO: deal with delete issue
-                if (et_main.text[st - 1] != '\n') {
+                if (before > 0 && start == en) {                        // delete the line below image
+                    et_main.text = et_main.text.delete(st, en)
+                    et_main.setSelection(st)
+                } else if (st > 1 && et_main.text[st - 1] != '\n') {    // type before the image
                     et_main.text = et_main.text.insert(st, "\n")
                     et_main.setSelection(st)
-                } else if (et_main.text[en] != '\n') {
+                } else if (et_main.text[en] != '\n') {                  // type after the image
                     et_main.text = et_main.text.insert(en, "\n")
                     et_main.setSelection(en + 2)
                 }
