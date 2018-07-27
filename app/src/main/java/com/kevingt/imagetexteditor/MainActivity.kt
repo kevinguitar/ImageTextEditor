@@ -16,6 +16,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,6 +24,8 @@ class MainActivity : AppCompatActivity() {
         private const val REQ_CHOOSE_IMAGE = 1
         private const val IMAGE_SPAN = "\n \n"
     }
+
+    private val imageSpanHashStack: Stack<Int> = Stack()
 
     private val textWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
@@ -73,6 +76,7 @@ class MainActivity : AppCompatActivity() {
         val requestOptions = RequestOptions()
                 .override(800)
                 .fitCenter()
+
         Glide.with(this)
                 .asBitmap()
                 .load(uri)
@@ -104,6 +108,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun takePhoto(v: View) {
+        val drawable = getDrawable(R.drawable.image_progress_bar)
+        drawable.setBounds(0, 0, 800, 800)
+        imageSpanHashStack.add(ImageSpanUtil.setPlaceHolderSpan(et_main, drawable))
 
+        val requestOptions = RequestOptions()
+                .override(800)
+                .fitCenter()
+
+        Glide.with(this)
+                .asBitmap()
+                .load("https://c2.staticflickr.com/8/7151/6760135001_14c59a1490_o.jpg") // 8000 x 8000
+                .apply(requestOptions)
+                .into(object : SimpleTarget<Bitmap>() {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        ImageSpanUtil.replaceLoadedImage(et_main, resource, imageSpanHashStack.pop())
+                    }
+                })
     }
 }
