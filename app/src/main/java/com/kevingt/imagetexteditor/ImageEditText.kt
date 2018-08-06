@@ -38,19 +38,24 @@ class ImageEditText @JvmOverloads constructor(context: Context,
     private var image: Bitmap? = null
     private var imageCopy: Bitmap? = null
 
-    fun initSetting() {
-        paintProgress = Paint()
-        paintProgress.isAntiAlias = true
-        paintProgress.style = Paint.Style.STROKE
-        paintProgress.strokeWidth = progressStrokeWidth
-        paintProgress.color = ContextCompat.getColor(context, R.color.colorAccent)
-        addTextChangedListener(textWatcher)
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        initSetting()
+    }
+
+    override fun onDetachedFromWindow() {
+        image?.recycle()
+        image = null
+        imageCopy?.recycle()
+        imageCopy = null
+        super.onDetachedFromWindow()
     }
 
     /**
      * @param uri Pass the uri of photo from intent data
      */
     fun insertImage(uri: Uri) {
+        //TODO: get the screen size
         val requestOptions = RequestOptions()
                 .override(800)
                 .fitCenter()
@@ -76,13 +81,20 @@ class ImageEditText @JvmOverloads constructor(context: Context,
     fun updateUploadProgress(progress: Int) {
         if (progress >= 100) {      //upload success
             replaceImage(image)
-//            image?.recycle()
-//            imageCopy?.recycle()
             return
         }
         if (progress >= 0) {
             drawProgress(progress)
         }
+    }
+
+    private fun initSetting() {
+        paintProgress = Paint()
+        paintProgress.isAntiAlias = true
+        paintProgress.style = Paint.Style.STROKE
+        paintProgress.strokeWidth = progressStrokeWidth
+        paintProgress.color = ContextCompat.getColor(context, R.color.colorAccent)
+        addTextChangedListener(textWatcher)
     }
 
     private fun initUploadView() {
@@ -118,12 +130,11 @@ class ImageEditText @JvmOverloads constructor(context: Context,
         if (image == null || image!!.isRecycled) {
             return
         }
-        imageCopy = Bitmap.createBitmap(image)
-        val canvas = Canvas(imageCopy)
+        val imageProgress = Bitmap.createBitmap(imageCopy)
+        val canvas = Canvas(imageProgress)
         val angle = progress * 360 / 100f
-        canvas.drawARGB(128, 255, 255, 255)
         canvas.drawArc(rectProgress, 270f, angle, false, paintProgress)
-        replaceImage(imageCopy)
+        replaceImage(imageProgress)
     }
 
     /**
@@ -164,7 +175,7 @@ class ImageEditText @JvmOverloads constructor(context: Context,
             if (s.isNullOrEmpty()) {
                 return
             }
-            val spans = text.getSpans(0, length(), ImageSpan::class.java)
+            val spans = text.getSpans(0, length() - 1, ImageSpan::class.java)
             if (spans.isEmpty()) {
                 return
             }
