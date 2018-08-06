@@ -14,6 +14,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.text.style.ImageSpan
 import android.util.AttributeSet
+import android.util.DisplayMetrics
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
@@ -35,11 +36,15 @@ class ImageEditText @JvmOverloads constructor(context: Context,
     private val progressWidth = 160
 
     private var spanHashCode = 0
+    private var screenWidth = 0
     private var image: Bitmap? = null
     private var imageCopy: Bitmap? = null
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        val display = DisplayMetrics()
+        (context as MainActivity).windowManager.defaultDisplay.getMetrics(display)
+        screenWidth = display.widthPixels
         initSetting()
     }
 
@@ -55,9 +60,8 @@ class ImageEditText @JvmOverloads constructor(context: Context,
      * @param uri Pass the uri of photo from intent data
      */
     fun insertImage(uri: Uri) {
-        //TODO: get the screen size
         val requestOptions = RequestOptions()
-                .override(800)
+                .override((screenWidth * 0.8).toInt())
                 .fitCenter()
 
         Glide.with(this)
